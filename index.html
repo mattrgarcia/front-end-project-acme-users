@@ -21,18 +21,22 @@
       })
 
       class Users extends React.Component {
-        constructor (){
+        constructor (props){
           super();
           this.state = {
-            count: 0
+            count: 0,
+            users: []
           };
         }
        async componentDidMount (){
          try{
-          const idx = this.props.match.params.idx;
-          console.log(idx);
-          const res = await userAPI.get(`/users/${idx}`);
-          this.setState({count:res.count})
+          const res = await userAPI.get(`/users/1`);
+          const user = res.data.users
+          console.log(user)
+          const firstName = user[0].firstName
+          const lastName = user[0].lastName
+          this.setState({count:res.data.count, users:[user]})
+
          }
          catch(err){
            console.log(err);
@@ -53,7 +57,12 @@
             <div>
               {
                 links.map(link => <Link to={`/users/${link.idx ? link.idx : ''}`} key={link.idx}>{link.text}</Link>)
+               }
+              {
+                <div>
+                  </div>
               }
+
             </div>
           );
         }
