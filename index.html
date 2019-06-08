@@ -4,6 +4,9 @@
   a {
     margin-right: 20px
   }
+  th {
+    margin-right: 100px
+  }
 </style>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.js'></script>
     <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
@@ -28,24 +31,24 @@
             users: []
           };
         }
-       async componentDidMount (){
-         try{
-          const res = await userAPI.get(`/users/1`);
-          const user = res.data.users
-          console.log(user)
-          const firstName = user[0].firstName
-          const lastName = user[0].lastName
-          this.setState({count:res.data.count, users:[user]})
+       async componentDidMount (match){
 
-         }
-         catch(err){
-           console.log(err);
-         }
+          const idx = this.props.match.params.idx || 0;
+          const res = await userAPI.get(`/users/${idx}`);
+          const user = res.data.users
+          this.setState({count:res.data.count, users: user})
+        }
+        async componentDidUpdate (prevProps){
+          if(prevProps.match.params.idx !== this.props.match.params.idx){
+            const idx = this.props.match.params.idx || 0;
+          const res = await userAPI.get(`/users/${idx}`);
+          const user = res.data.users
+          this.setState({count:res.data.count, users: user})
+          }
         }
         render (){
-          const {count} = this.state;
-          const countPerPage = 50;
-          const totalPages = Math.ceil(count/countPerPage);
+          const { count, users } = this.state;
+          const totalPages = Math.ceil(count/50);
           const links = [];
           for(let i = 0; i< totalPages; i++){
             links.push({
@@ -58,11 +61,27 @@
               {
                 links.map(link => <Link to={`/users/${link.idx ? link.idx : ''}`} key={link.idx}>{link.text}</Link>)
                }
-              {
-                <div>
-                  </div>
-              }
-
+               <table>
+                <thead>
+                  <tr>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Middle Name</th>
+                    <th>Email</th>
+                  </tr>
+                </thead>
+                <tbody>
+                    {
+                      users.map(user=>
+                      <tr key={user.id}>
+                      {user.firstName}
+                      <td>{user.lastName}</td>
+                      <td>{user.middleName}</td>
+                      <td>{user.email}</td>
+                      </tr>)
+                    }
+                </tbody>
+               </table>
             </div>
           );
         }
